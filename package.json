@@ -1,5 +1,6 @@
 {
   "name": "educational-track-personalization-front",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
