@@ -1,0 +1,79 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+.Auth {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: linear-gradient(#dabbf6, #faf5fc, #dabbf6);
+    height: 93vh;
+    color: purple;
+}
+
+input.auth_submit {
+    background-color: purple;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 5px;
+    font-size: 12pt;
+}
+
+input.auth_submit:hover {
+    background-color: #45a049;
+}
+
+div.submitButtonHolder {
+    text-align: center;
+}
+
+.Auth .email {
+    display: flex;
+}
+
+.Auth .email input {
+    /*width: 300px;*/
+    font-size: 20px;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    margin-top: 10px;
+    border: 2px solid #55525c;
+    background: lightgray;
+    font-weight: bold;
+    color: purple;
+    outline: none;
+    transition: all 0.1s;
+}
+
+.Auth .otp-box {
+    display: flex;
+}
+
+.Auth .otp-box input {
+    width: 50px;
+    font-size: 32px;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    margin: 2px;
+    border: 2px solid #55525c;
+    background: gray;
+    font-weight: bold;
+    color: purple;
+    outline: none;
+    transition: all 0.1s;
+}
+
+.Auth .otp-box input:focus {
+    border: 2px solid purple;
+    box-shadow: 0 0 2px 2px pink;
+}

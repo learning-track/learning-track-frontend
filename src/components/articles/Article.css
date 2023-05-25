@@ -1,0 +1,127 @@
+.Article {
+    text-align: left;
+    /*background-color: #ffffff;*/
+    background: linear-gradient(#dabbf6, #faf5fc, #dabbf6);
+    min-height: 91vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: #000000;
+    padding-bottom: 100px;
+}
+
+div[type=article_articleType] {
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+}
+
+label[type=category] {
+    font-size: 12pt;
+    float: left;
+    color: #426a5a;
+    width: 70%;
+    margin-top: 5px;
+    text-decoration: underline;
+}
+
+label[type=category_word] {
+    font-size: 12pt;
+    float: left;
+    color: #464646;
+    width: 12%;
+    margin-top: 5px;
+}
+
+label[type=date] {
+    font-size: 12pt;
+    float: left;
+    color: #464646;
+    width: 100%;
+    margin-top: 5px;
+    text-align: right;
+}
+
+label[type=content] {
+    font-size: 12pt;
+    float: left;
+    color: #000000;
+    width: 100%;
+    text-align: justify;
+    margin-top: 5px;
+    white-space: pre-line;
+}
+
+label[type=tags] {
+    font-size: 12pt;
+    float: left;
+    color: #464646;
+    width: 100%;
+    text-align: justify;
+    margin-top: 5px;
+    padding-top: 30px;
+}
+
+h3[type=article_title] {
+    width: 100%;
+    text-align: center;
+}
+
+button[type=article_mark_as_read] {
+    background-color: #426a5a;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+    width: 100%;
+    margin-top: 40px;
+    position: center;
+    font-size: 12pt;
+}
+
+button[type=article_mark_as_read]:hover {
+    background-color: #45a049;
+}
+
+div.likeButton {
+    width: 100%;
+    justify-content: center;
+    display: flex;
+}
+
+button[type=article_liked] {
+    background-color: #bd9d00;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 50%;
+    margin-top: 10px;
+    font-size: 12pt;
+}
+
+button[type=article_liked]:hover {
+    background-color: #DDAE7E;
+}
+
+button[type=article_unliked] {
+    background-color: #426a5a;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+    width: 50%;
+    margin-top: 10px;
+    font-size: 12pt;
+}
+
+button[type=article_unliked]:hover {
+    background-color: #DDAE7E;
+}
