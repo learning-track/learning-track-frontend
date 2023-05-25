@@ -4,15 +4,15 @@ import {BrowserRouter, Routes, Route, useParams} from "react-router-dom";
 
 import './index.css';
 
-import Article from "./src/components/articles/Article";
-import Articles from "./src/components/articles/Articles";
-import Auth from "./src/components/auth/Auth";
-import Course from "./src/components/courses/Course";
-import Courses from "./src/components/courses/Courses";
-import Job from "./src/components/vacancies/Job";
-import Skills from "./src/components/skills/Skills";
-import Track from "./src/components/track/Track";
-import UserProfile from "./src/components/profile/UserProfile";
+import Article from "./components/articles/Article";
+import Articles from "./components/articles/Articles";
+import Auth from "./components/auth/Auth";
+import Course from "./components/courses/Course";
+import Courses from "./components/courses/Courses";
+import Job from "./components/vacancies/Job";
+import Skills from "./components/skills/Skills";
+import Track from "./components/track/Track";
+import UserProfile from "./components/profile/UserProfile";
 
 const Wrapper = (props) => {
     const params = useParams();
