@@ -5,7 +5,7 @@
 .UserProfile {
     text-align: left;
     background: linear-gradient(#dabbf6, #faf5fc, #dabbf6);
-    min-height: 93vh;
+    min-height: 92vh;
     display: flex;
     flex-direction: column;
     align-items: center;
