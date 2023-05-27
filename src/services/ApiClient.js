@@ -8,18 +8,19 @@ class ApiClient {
     static POST_QUESTIONNAIRE = '/questionnaire';
     static GET_CURRENT_USER = '/user';
     static POST_ADD_ARTICLE_READ = '/user/addCompletedMaterial';
-    static POST_ADD_LIKE = '/material/addLike';
-    static POST_REMOVE_LIKE = '/material/removeLike';
+    static POST_ADD_LIKE = '/material/';
+    static POST_REMOVE_LIKE = '/material/';
     static GET_ARTICLE_LIST = '/article/list';
     static GET_ARTICLE_BY_ID = '/article/';
-    static GET_COURSE_BY_ID = '/course/';
-    static GET_JOB_BY_ID = '/job/';
+    static GET_COURSE_LIST = '/courses';
+    static GET_COURSE_BY_ID = '/courses/';
+    static GET_JOB_BY_ID = '/vacancies/';
     static GET_USER_SKILLS = '/skills';
     static GET_ALL_SKILL_NAMES = '/skills/names';
     static POST_UPDATE_SKILLS = '/skills';
     static DELETE_SKILL = '/skills/remove';
-    static GET_TRACK_LATEST = '/track/latest';
-    static POST_TRACK_GENERATE = '/track/generate';
+    static GET_TRACK_LATEST = '/tracks/latest';
+    static POST_TRACK_GENERATE = '/tracks/generate';
 
     static sendQuestionnaire(name: string): Promise<Response> {
         return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_QUESTIONNAIRE, {
@@ -67,6 +68,15 @@ class ApiClient {
         });
     }
 
+    static getCourses(): Promise<Response> {
+        return fetch(ClientConfig.SERVER_LINK + ApiClient.GET_COURSE_LIST, {
+            method: 'GET', headers: {
+                'Content-Type': 'application/json',
+                'Authorization': (AuthClient.ACCESS_TOKEN != null) ? AuthClient.ACCESS_TOKEN : ''
+            }
+        });
+    }
+
     static getCourse(id: number): Promise<Response> {
         return fetch(ClientConfig.SERVER_LINK + ApiClient.GET_COURSE_BY_ID + id, {
             method: 'GET', headers: {
@@ -94,18 +104,16 @@ class ApiClient {
     }
 
     static learningMaterialLike(id, learningMaterialType): Promise<Response> {
-        return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_ADD_LIKE, {
+        return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_ADD_LIKE + id + '/like', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN},
-            body: JSON.stringify({id: parseInt(id), learningMaterialType: learningMaterialType})
+            headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN}
         });
     }
 
     static learningMaterialUnlike(id, learningMaterialType): Promise<Response> {
-        return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_REMOVE_LIKE, {
+        return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_REMOVE_LIKE  + id + '/remove-like', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN},
-            body: JSON.stringify({id: parseInt(id), learningMaterialType: learningMaterialType})
+            headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN}
         });
     }
 

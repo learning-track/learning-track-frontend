@@ -106,6 +106,7 @@ body {
 .btn--white {
     background-color: #fff;
     color: #777;
+    margin-bottom: 10px;
 }
 
 .btn--white::after {

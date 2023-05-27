@@ -12,7 +12,7 @@ import Courses from "./components/courses/Courses";
 import Job from "./components/vacancies/Job";
 import Skills from "./components/skills/Skills";
 import Track from "./components/track/Track";
-import UserProfile from "./components/profile/UserProfile";
+import UserProfile from "./components/profile/Profile";
 
 const Wrapper = (props) => {
     const params = useParams();

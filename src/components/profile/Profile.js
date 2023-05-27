@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Navigate, useNavigate} from "react-router-dom";
 
-import './UserProfile.css';
+import './Profile.css';
 
 import User from "../../dto/User";
 import ApiClient from "../../services/ApiClient";

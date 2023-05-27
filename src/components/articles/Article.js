@@ -85,7 +85,6 @@ class Article extends React.Component {
         });
     }
 
-
     render() {
         if (!this.state.articleLoaded) {
             return <div className="Article"/>
@@ -101,9 +100,11 @@ class Article extends React.Component {
                         <label type="category_word">Category: </label>
                         <label type="category">{this.article.category}</label>
                         <br/>
-                        <br/>
-                        <label type="content">{String(this.article.content)
-                            .replaceAll('----------------------', '\n\n')}</label>
+                        <div>
+                            {this.article.content}
+                        </div>
+                        {/*<label type="content">{String(this.article.content)*/}
+                        {/*    .replaceAll('----------------------', '\n\n')}</label>*/}
                         <br/>
                         <label type="tags">{this.article.tags}</label>
                         <br/>

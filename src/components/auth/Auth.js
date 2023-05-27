@@ -10,11 +10,12 @@ class Auth extends React.Component {
 
     constructor() {
         super();
+
         this.state = {
-            secondsLeft: 120, username: '', password: '', message: null, code: false, authorized: false
+            username: '', password: '',
+            codeSent: false, secondsLeft: 120,
+            message: null, authorized: false
         }
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmitResult = this.handleSubmitResult.bind(this);
     }
 
     componentDidMount() {
@@ -26,10 +27,10 @@ class Auth extends React.Component {
     }
 
     tick() {
-        if (this.state.code) {
+        if (this.state.codeSent) {
             if (this.state.secondsLeft <= 0) {
                 this.setState({
-                    code: false,
+                    codeSent: false,
                     secondsLeft: 120,
                     message: 'Время действия кода истекло. Попробуйте ещё раз.'
                 })
@@ -41,99 +42,146 @@ class Auth extends React.Component {
         }
     }
 
-    handleSubmitResult(event) {
-        console.log("Submit!")
+    render() {
+        if (this.state.authorized || AuthClient.ACCESS_TOKEN !== null) {
+            return (<Navigate to='/profile'/>)
+        }
+
+        return (
+            <div>
+                <ApplicationHeader/>
+                {!this.state.codeSent ?
+                    <Email this={this}/> :
+                    <Code this={this}/>}
+            </div>);
+    }
+}
+
+function Email(props) {
+
+    function handleChange(event) {
+        props.this.setState({[event.target.name]: event.target.value, message: ''});
+    }
+
+    function handleSubmitResult(event) {
         event.preventDefault();
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!emailRegex.test(this.state.username)) {
-            this.setState({
-                message: 'Неверный формат'
-            })
-        } else if (!this.state.code) {
-            this.setState({
-                code: true
-            })
-
-            AuthClient.auth(this.state.username, this.state.password)
-                .then((res => {
-                    if (res.ok) {
-                        AuthClient.USERNAME = this.state.username;
-                        localStorage.setItem('username', JSON.stringify(this.state.username));
-                    } else {
-                        res.json().then(json => {
-                            this.setState({
-                                message: json.result, password: ''
-                            });
-                        }).catch(() => {
-                            this.setState({
-                                message: 'Ошибка авторизации!'
-                            })
-                        })
-                    }
-                }));
-        } else {
-            const inputs = Array.from(event.target.parentElement.getElementsByTagName('input'));
-
-            let password = '';
-            for (let i = 0; i < inputs.length - 1; i++) {
-                console.log(inputs[i].value)
-                password += inputs[i].value
-            }
-            console.log(password)
-
-            AuthClient.auth(this.state.username, password)
-                .then((res => {
-                    if (res.ok) {
-                        AuthClient.USERNAME = this.state.username;
-                        localStorage.setItem('username', JSON.stringify(this.state.username));
-
-                        AuthClient.ACCESS_TOKEN = res.headers.get("Authorization");
-                        this.setState({
-                            message: '', username: '', password: '', authorized: true
-                        });
-                        localStorage.setItem('sessionId', JSON.stringify(res.headers.get("Authorization")));
-                    } else {
-                        res.json().then(json => {
-                            this.setState({
-                                message: json.result, password: ''
-                            });
-                        }).catch(() => {
-                            this.setState({
-                                message: 'Ошибка авторизации!'
-                            })
-                        })
-                    }
-                }));
+        if (!emailRegex.test(props.this.state.username)) {
+            props.this.state.this.setState({message: 'Неверный формат'})
         }
+
+        props.this.setState({codeSent: true})
+        console.log(props.this.state.codeSent)
+
+        AuthClient.auth(props.this.state.username, '')
+            .then((res => {
+                if (res.ok) {
+                    AuthClient.USERNAME = props.this.state.username;
+                    localStorage.setItem('username', JSON.stringify(props.this.state.username));
+                } else {
+                    res.json().then(json => {
+                        props.this.setState({message: json.result, password: ''});
+                    }).catch(() => {
+                        props.this.setState({message: 'Ошибка авторизации!'})
+                    })
+                }
+            }));
     }
 
-    handleChange(event) {
-        this.setState({
-            [event.target.name]: event.target.value, message: ''
-        });
-    }
+    return (
+        <div className="Auth">
+            <form onSubmit={handleSubmitResult} style={{alignItems: "center", justifyContent: "center"}}>
+                <div className="Auth">
+                    <h1>Войдите или зарегистрируйтесь</h1>
+                    <p>Чтобы начать пользоваться сервисом Learning Track</p>
+                    <div className="email">
+                        <input
+                            type="text"
+                            maxLength="320"
+                            placeholder="Электронная почта"
+                            value={props.this.state.username}
+                            name="username"
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>{props.this.state.message}</div>
+                    <div className="submitButtonHolder">
+                        <input type="submit" className="auth_submit" value="Продолжить"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    );
+}
 
-    validateInput(event) {
+function Code(props) {
+
+    function handleSubmitResult(event) {
+        event.preventDefault();
+
         const inputs = Array.from(event.target.parentElement.getElementsByTagName('input'));
-        const index = inputs.indexOf(event.target);
+
+        let password = '';
+        for (let i = 0; i < inputs.length - 1; i++) {
+            console.log(inputs[i].value)
+            password = password + String(inputs[i].value)
+        }
+
+        props.this.setState({password: password})
+        console.log(props.this.state.password)
+
+        AuthClient.auth(props.this.state.username, password)
+            .then((res => {
+                if (res.ok) {
+                    AuthClient.USERNAME = props.this.state.username;
+                    localStorage.setItem('username', JSON.stringify(props.this.state.username));
+
+                    AuthClient.ACCESS_TOKEN = res.headers.get("Authorization");
+                    localStorage.setItem('sessionId', JSON.stringify(res.headers.get("Authorization")));
+
+                    props.this.setState({
+                        username: '',
+                        password: '',
+                        codeSent: false,
+                        secondsLeft: 120,
+                        message: '',
+                        authorized: true
+                    });
+                } else {
+                    res.json().then(json => {
+                        props.this.setState({message: json.result, password: ''});
+                    }).catch(() => {
+                        props.this.setState({message: 'Ошибка авторизации!'})
+                    })
+                }
+            }));
+    }
+
+    function onInput(event) {
         if (!/^\d*$/.test(event.target.value)) {
             event.target.value = '';
         }
-        if (event.target.value >= 1 && index < 4) {
+
+        const inputs = Array.from(event.target.parentElement.getElementsByTagName('input'));
+        const index = inputs.indexOf(event.target);
+
+        if (event.target.value >= 0 && index < 4) {
             inputs[index + 1].focus();
         }
     }
 
-    fu(event) {
+    function onKeyDown(event) {
         const inputs = Array.from(event.target.parentElement.getElementsByTagName('input'));
         const index = inputs.indexOf(event.target);
+
         if (event.key === 'Backspace' && index > 0) {
             event.preventDefault();
             inputs[index - 1].focus();
             event.target.value = '';
         }
+
         if (event.key === 'Delete' && index < 4) {
             event.preventDefault();
             inputs[index + 1].focus();
@@ -141,67 +189,30 @@ class Auth extends React.Component {
         }
     }
 
-    render() {
-        if (this.state.authorized) {
-            return (<Navigate to='/profile'/>);
-        }
-
-        return (<div>
-            <ApplicationHeader/>
-            {!this.state.code
-                /*Email:*/ ? <div className="Auth">
-                    <form onSubmit={this.handleSubmitResult} style={{alignItems: "center", justifyContent: "center"}}>
-                        <div className="Auth">
-                            <h1>Войдите или зарегистрируйтесь</h1>
-                            <p>Чтобы начать пользоваться сервисом Learning Track</p>
-                            <div className="email">
-                                <input
-                                    type="text"
-                                    maxLength="320"
-                                    placeholder="Электронная почта"
-                                    value={this.state.username}
-                                    name="username"
-                                    onChange={this.handleChange}
-                                />
-                            </div>
-                            <div>{this.state.message}</div>
-                            <div className="submitButtonHolder">
-                                <input type="submit" className="auth_submit" value="Продолжить"/>
-                            </div>
-                        </div>
-                    </form>
+    return (
+        <div className="Auth">
+            <form onSubmit={handleSubmitResult} style={{alignItems: "center", justifyContent: "center"}}>
+                <div className="Auth">
+                    <h1>Введите код из письма</h1>
+                    <p>
+                        Мы отправили письмо на <b>{props.this.state.username}</b>
+                    </p>
+                    <div className="code">
+                        <input type="text" maxLength="1" placeholder="X" onInput={onInput} onKeyDown={onKeyDown}/>
+                        <input type="text" maxLength="1" placeholder="X" onInput={onInput} onKeyDown={onKeyDown}/>
+                        <input type="text" maxLength="1" placeholder="X" onInput={onInput} onKeyDown={onKeyDown}/>
+                        <input type="text" maxLength="1" placeholder="X" onInput={onInput} onKeyDown={onKeyDown}/>
+                        <input type="text" maxLength="1" placeholder="X" onInput={onInput} onKeyDown={onKeyDown}/>
+                    </div>
+                    <div>{props.this.state.message}</div>
+                    <p>Время действия кода <span id="mySpan">{props.this.state.secondsLeft}</span> сек.</p>
+                    <div className="submitButtonHolder">
+                        <input type="submit" className="auth_submit" value="Войти"/>
+                    </div>
                 </div>
-                /*Code:*/ : <div className="Auth">
-                    <form onSubmit={this.handleSubmitResult} style={{alignItems: "center", justifyContent: "center"}}>
-                        <div className="Auth">
-                            <h1>Введите код из письма</h1>
-                            <p>
-                                Мы отправили письмо на <b>{this.state.username}</b>
-                            </p>
-                            <div className="otp-box">
-                                <input type="text" maxLength="1" placeholder="X" onInput={this.validateInput}
-                                       onKeyDown={this.fu}/>
-                                <input type="text" maxLength="1" placeholder="X" onInput={this.validateInput}
-                                       onKeyDown={this.fu}/>
-                                <input type="text" maxLength="1" placeholder="X" onInput={this.validateInput}
-                                       onKeyDown={this.fu}/>
-                                <input type="text" maxLength="1" placeholder="X" onInput={this.validateInput}
-                                       onKeyDown={this.fu}/>
-                                <input type="text" maxLength="1" placeholder="X" onInput={this.validateInput}
-                                       onKeyDown={this.fu}/>
-                            </div>
-                            <div>{this.state.message}</div>
-                            <p>
-                                Время действия кода <span id="mySpan">{this.state.secondsLeft}</span> сек.
-                            </p>
-                            <div className="submitButtonHolder">
-                                <input type="submit" className="auth_submit" value="Войти"/>
-                            </div>
-                        </div>
-                    </form>
-                </div>}
-        </div>);
-    }
+            </form>
+        </div>
+    );
 }
 
 export default Auth;

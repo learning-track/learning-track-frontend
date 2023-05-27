@@ -3,6 +3,11 @@ class CourseDTO {
     title;
     description;
     externalLink;
+    imageUrl;
+    category;
+    price;
+    headline;
+    rating;
     completed;
     liked;
 }

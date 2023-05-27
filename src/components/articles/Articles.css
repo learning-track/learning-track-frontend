@@ -43,8 +43,10 @@
 /*    padding: 13px 13px 13px 13px;*/
 /*}*/
 
-/*h3[type="articles_page_title"] {*/
-/*    width: 100%;*/
-/*    text-align: center;*/
-/*    color: #426a5a;*/
-/*}*/
+h3[type="articles_page_title"] {
+    width: 100%;
+    text-align: center;
+    color: purple;
+    font-size: 4rem;
+    margin-top: 20px;
+}
