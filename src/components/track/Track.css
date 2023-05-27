@@ -1,8 +1,8 @@
 .Track {
     text-align: left;
     /*background-color: #ffffff;*/
-    background: linear-gradient(#dabbf6, #faf5fc, #dabbf6);
-    min-height: 93vh;
+    background: linear-gradient(#FFFFFF, #FFFFFF, #FFFFFF);
+    min-height: 92vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19,7 +19,6 @@
 /*}*/
 
 button.GenerateTrackButton {
-    background-color: purple;
     color: white;
     padding: 12px 20px;
     border: none;
@@ -130,7 +129,7 @@ label.TrackStepTitle {
     /*font-size: 13pt;*/
     cursor: pointer;
     /*font-size-adjust: 0.58;*/
-    color: purple;
+    color: #FFFFFF;
 }
 
 /*div.NotificationError {*/
@@ -182,7 +181,7 @@ h1 {
     cursor: pointer;
     padding: 10px;
     border-radius: 8px;
-    background: linear-gradient(-45deg, #f403d1, #64b5f6);
+    background: linear-gradient(-45deg, #00aad5, #5ed2ef, #00aad5);
     transition: background 0.3s;
 }
 
@@ -197,13 +196,13 @@ h1 {
 .track-title {
     font-size: 18px;
     font-weight: bold;
-    color: purple;
+    color: #FFFFFF;
     margin-bottom: 8px;
 }
 
 .track-description {
     font-size: 14px;
-    color: purple;
+    color: #FFFFFF;
 }
 
 .track-status {
@@ -214,9 +213,9 @@ h1 {
 }
 
 .status-completed {
-    color: greenyellow;
+    color: green;
 }
 
 .status-not-completed {
-    color: #ff5555;
+    color: red;
 }

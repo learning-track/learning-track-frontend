@@ -139,13 +139,6 @@ class Track extends React.Component {
             </div>
         )
     }
-
-}
-
-function SpinnerView() {
-    return (
-        <HashLoader size={180} color={"purple"}/>
-    )
 }
 
 export function NotificationError(props) {
@@ -203,6 +196,14 @@ function ComponentTrackView(props) {
                 {trackRender}
             </div>
         </a.div>
+    )
+}
+
+function SpinnerView() {
+    return (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "65vh"}}>
+            <HashLoader size={180} color={"#00aad5"} />
+        </div>
     )
 }
 

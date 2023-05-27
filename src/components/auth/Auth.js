@@ -44,7 +44,7 @@ class Auth extends React.Component {
 
     render() {
         if (this.state.authorized || AuthClient.ACCESS_TOKEN !== null) {
-            return (<Navigate to='/profile'/>)
+            return (<Navigate to='/track'/>)
         }
 
         return (
@@ -106,7 +106,7 @@ function Email(props) {
                             onChange={handleChange}
                         />
                     </div>
-                    <div>{props.this.state.message}</div>
+                    <div className="errorMessage">{props.this.state.message}</div>
                     <div className="submitButtonHolder">
                         <input type="submit" className="auth_submit" value="Продолжить"/>
                     </div>

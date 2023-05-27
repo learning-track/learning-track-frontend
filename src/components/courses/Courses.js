@@ -1,12 +1,12 @@
 import * as React from "react";
+import {Navigate} from "react-router-dom";
+import HashLoader from "react-spinners/HashLoader";
 
 import './Courses.css';
 
+import ApiClient from "../../services/ApiClient";
 import ApplicationHeader from "../applicationheader/ApplicationHeader";
 import CourseDTO from "../../dto/CourseDTO";
-import ApiClient from "../../services/ApiClient";
-import {FadeLoader} from "react-spinners";
-import {Navigate} from "react-router-dom";
 
 class Courses extends React.Component {
 
@@ -16,35 +16,34 @@ class Courses extends React.Component {
     constructor() {
         super();
 
-        this.state = {
-            coursesLoaded: false, courseChosen: false
-        };
+        this.state = {coursesLoaded: false, courseChosen: false};
 
         ApiClient.getCourses().then(res => {
             if (res.ok) {
                 res.json().then(json => {
                     for (let index = 0; index < json['content'].length; index++) {
+                        let content = json['content']
+
                         let newCourse = new CourseDTO()
-                        newCourse.id = json['content'][index].id;
-                        newCourse.title = json['content'][index].title;
-                        newCourse.description = json['content'][index].description;
-                        newCourse.externalLink = json['content'][index].externalLink;
-                        newCourse.imageUrl = json['content'][index].imageUrl;
-                        newCourse.category = json['content'][index].category;
-                        newCourse.price = json['content'][index].price;
-                        newCourse.headline = json['content'][index].headline;
-                        newCourse.rating = Number(json['content'][index].rating).toFixed(2);
-                        newCourse.completed = json['content'][index].completed;
-                        newCourse.liked = json['content'][index].liked;
+                        newCourse.id = content[index].id;
+                        newCourse.title = content[index].title;
+                        newCourse.description = content[index].description;
+                        newCourse.externalLink = content[index].externalLink;
+                        newCourse.imageUrl = content[index].imageUrl;
+                        newCourse.category = content[index].category;
+                        newCourse.price = content[index].price;
+                        newCourse.headline = content[index].headline;
+                        newCourse.rating = Number(content[index].rating).toFixed(2);
+                        newCourse.completed = content[index].completed;
+                        newCourse.liked = content[index].liked;
+
                         this.courses.push(newCourse)
                     }
-                    console.log(this.courses)
-                    this.setState({
-                        coursesLoaded: true
-                    })
+
+                    this.setState({coursesLoaded: true})
                 })
             } else {
-                console.log("Error")
+                console.log("Error: could not get courses!")
             }
         });
 
@@ -52,22 +51,22 @@ class Courses extends React.Component {
     }
 
     handleSubmitResult(event) {
-        this.courseChosenId = event.currentTarget.getAttribute("data-value1")
-
-        this.setState({
-            courseChosen: true
-        })
+        this.setState({courseChosen: true})
+        this.courseChosenId = event.currentTarget.getAttribute("data-value")
     }
 
     render() {
+        if (this.state.courseChosen) {
+            return (<Navigate to={'/course/' + this.courseChosenId}/>);
+        }
+
         let coursesRender = []
-        for (let i = 0; i < this.courses.length; i += 3) {
-            coursesRender.push((<div className="row">
+        for (let i = 0; i < this.courses.length; i++) {
+            coursesRender.push(
                 <div className="col-1-of-3">
                     <div className="card">
-                        <div className="card__side card__side--front-1">
-                            <div className="card__title card__title--1">
-                                {/*<i className="fas fa-paper-plane"></i>*/}
+                        <div className="card__side card__side--front">
+                            <div className="card__title">
                                 <img loading="lazy" alt="" src={this.courses[i].imageUrl}/>
                             </div>
                             <div className="card__details">
@@ -79,101 +78,51 @@ class Courses extends React.Component {
                                 </ul>
                             </div>
                         </div>
-                        <div className="card__side card__side--back card__side--back-1">
+                        <div className="card__side card__side--back card__side--back">
                             <div className="card__cta">
-                                <div className="card__price-box">
-                                    <p className="card__price-only">Средняя оценка:</p>
-                                    <p className="card__price-value">{this.courses[i].rating} / 5</p>
+                                <div className="card__rating-box">
+                                    <p className="card__rating-only">Средняя оценка:</p>
+                                    <p className="card__rating-value">{this.courses[i].rating} / 5</p>
                                 </div>
-                                <a href="#popup" className="btn btn--white" data-value1={this.courses[i].id}
+                                <a href="#" className="btn btn--white" data-value={this.courses[i].id}
                                    onClick={this.handleSubmitResult}>Подробнее</a>
                                 <a href={this.courses[i].externalLink} className="btn btn--white">Ссылка на курс</a>
                             </div>
                         </div>
                     </div>
                 </div>
-                {i + 1 <= this.courses.length - 1 ? <div className="col-1-of-3">
-                    <div className="card">
-                        <div className="card__side card__side--front-2">
-                            <div className="card__title card__title--2">
-                                {/*<i className="fas fa-plane"></i>*/}
-                                <img loading="lazy" alt="" src={this.courses[i + 1].imageUrl}/>
-                            </div>
-
-                            <div className="card__details">
-                                <ul>
-                                    <li>{this.courses[i + 1].title}</li>
-                                    <li>Категория: {this.courses[i + 1].category}</li>
-                                    <li>Стоимость: {this.courses[i + 1].price}</li>
-                                    <li>{this.courses[i + 1].headline}</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="card__side card__side--back card__side--back-2">
-                            <div className="card__cta">
-                                <div className="card__price-box">
-                                    <p className="card__price-only">Средняя оценка:</p>
-                                    <p className="card__price-value">{this.courses[i + 1].rating} / 5</p>
-                                </div>
-                                <a href="#popup" className="btn btn--white" data-value1={this.courses[i + 1].id}
-                                   onClick={this.handleSubmitResult}>Подробнее</a>
-                                <a href={this.courses[i + 1].externalLink} className="btn btn--white">Ссылка на курс</a>
-                            </div>
-                        </div>
-                    </div>
-                </div> : null}
-                {i + 2 <= this.courses.length - 1 ? <div className="col-1-of-3">
-                    <div className="card">
-                        <div className="card__side card__side--front-3">
-                            <div className="card__title card__title--3">
-                                {/*<i className="fas fa-rocket"></i>*/}
-                                <img loading="lazy" alt="" src={this.courses[i + 2].imageUrl}/>
-                            </div>
-
-                            <div className="card__details">
-                                <ul>
-                                    <li>{this.courses[i + 2].title}</li>
-                                    <li>Категория: {this.courses[i + 2].category}</li>
-                                    <li>Стоимость: {this.courses[i + 2].price}</li>
-                                    <li>{this.courses[i + 2].headline}</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="card__side card__side--back card__side--back-3">
-                            <div className="card__cta">
-                                <div className="card__price-box">
-                                    <p className="card__price-only">Средняя оценка:</p>
-                                    <p className="card__price-value">{this.courses[i + 2].rating} / 5</p>
-                                </div>
-                                <a href="#popup" className="btn btn--white" data-value1={this.courses[i + 2].id}
-                                   onClick={this.handleSubmitResult}>Подробнее</a>
-                                <a href={this.courses[i + 2].externalLink} className="btn btn--white">Ссылка на курс</a>
-                            </div>
-                        </div>
-                    </div>
-                </div> : null}
-            </div>))
-
-            coursesRender.push(<br/>)
+            );
         }
 
-        if (this.state.courseChosen) {
-            return (<Navigate to={'/course/' + this.courseChosenId}/>);
+        let rowsRender = []
+        for (let i = 0; i < this.courses.length; i += 3) {
+            rowsRender.push(
+                <div className="row">
+                    {coursesRender[i]}
+                    {i + 1 <= this.courses.length - 1 ? coursesRender[i + 1] : null}
+                    {i + 2 <= this.courses.length - 1 ? coursesRender[i + 2] : null}
+                </div>
+            );
         }
 
-        return (<div>
-            <ApplicationHeader/>
-            <div className="Articles">
-                <h3 type="articles_page_title">Курсы</h3>
-                {this.state.coursesLoaded ? coursesRender : (
-                    <Loader styles={{position: "absolute", top: "50%", left: "50%",}}/>)}
+        return (
+            <div>
+                <ApplicationHeader/>
+                <div className="Articles">
+                    <h3 type="articles_page_title">Курсы</h3>
+                    {this.state.coursesLoaded ? rowsRender : <Loader/>}
+                </div>
             </div>
-        </div>)
+        )
     }
 }
 
-function Loader({styles = {}}) {
-    return <FadeLoader color="#426a5a" css={styles}/>;
+function Loader() {
+    return (
+        <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "65vh"}}>
+            <HashLoader size={180} color={"#00aad5"}/>
+        </div>
+    )
 }
 
 export default Courses;

@@ -2,7 +2,6 @@ import * as React from "react";
 import {FadeLoader} from "react-spinners";
 import {Navigate} from "react-router-dom";
 
-import './Articles.css';
 
 import ApiClient from "../../services/ApiClient";
 import ArticleDTO from "../../dto/ArticleDTO";

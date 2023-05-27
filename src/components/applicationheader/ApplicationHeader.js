@@ -60,10 +60,10 @@ function NavigationBar() {
                     <span className="fa-solid fa-graduation-cap" id="headIcon"></span>
                     <a href="#">Курсы</a>
                 </li>
-                <li onClick={() => {navigate('/articles')}}>
-                    <span className="fa-solid fa-newspaper" id="headIcon"></span>
-                    <a href="#">Статьи</a>
-                </li>
+                {/*<li onClick={() => {navigate('/articles')}}>*/}
+                {/*    <span className="fa-solid fa-newspaper" id="headIcon"></span>*/}
+                {/*    <a href="#">Статьи</a>*/}
+                {/*</li>*/}
                 <li onClick={() => {navigate('/vacancies')}}>
                     <span className="fa-solid fa-briefcase" id="headIcon"></span>
                     <a href="#">Вакансии</a>
@@ -77,6 +77,21 @@ function NavigationBar() {
                         <span className="fas fa-sign-in" id="headIcon"></span>
                         <a href="#">Войти</a>
                     </li>
+                }
+                {AuthClient.ACCESS_TOKEN !== null ?
+                    <li onClick={() => {
+                        AuthClient.ACCESS_TOKEN = null;
+                        AuthClient.USERNAME = null;
+
+                        localStorage.setItem('sessionId', null);
+                        localStorage.setItem('username', null);
+
+                        navigate('/profile');
+                    }}>
+                        <span className="fas fa-sign-out" id="headIcon"></span>
+                        <a href="#">Выйти</a>
+                    </li> :
+                    null
                 }
             </ul>
         </div>

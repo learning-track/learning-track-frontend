@@ -78,6 +78,19 @@ class UserProfile extends React.Component {
     }
 
     render() {
+
+        // const signUpButton = document.getElementById('signUp');
+        // const signInButton = document.getElementById('signIn');
+        // const container = document.getElementById('container');
+        //
+        // signUpButton.addEventListener('click', () => {
+        //     container.classList.add("right-panel-active");
+        // });
+        //
+        // signInButton.addEventListener('click', () => {
+        //     container.classList.remove("right-panel-active");
+        // });
+
         if (AuthClient.ACCESS_TOKEN == null) {
             return (<Navigate to='/login'/>)
         }
@@ -85,66 +98,86 @@ class UserProfile extends React.Component {
         return (<div>
             <ApplicationHeader/>
             <div className="UserProfile">
-                <h3 type="profile_page_title">{this.state.username}</h3>
-
-                <form onSubmit={this.handleSubmitResult}>
-                    <label type="user_profile_fields_labels">ФИО</label>
-                    <input type="user_profile_text"
-                           value={this.state.fullName}
-                           name="fullName"
-                           onChange={this.handleChange}/>
-                    <br/>
-                    <label type="user_profile_fields_labels">Год рождения</label>
-                    <input type="number"
-                           value={this.state.birthdayYear}
-                           name="birthdayYear"
-                           onChange={this.handleChange}/>
-                    <br/>
-                    <label type="user_profile_fields_labels">Город</label>
-                    <input type="user_profile_text"
-                           value={this.state.userCity}
-                           name="userCity"
-                           onChange={this.handleChange}/>
-                    <br/>
-                    <label type="user_profile_fields_labels">Учебное заведение</label>
-                    <input type="user_profile_text"
-                           value={this.state.college}
-                           name="college"
-                           onChange={this.handleChange}/>
-                    <br/>
-                    <label type="user_profile_fields_labels">Желаемая должность</label>
-                    <input type="user_profile_text"
-                           value={this.state.desiredPosition}
-                           name="desiredPosition"
-                           onChange={this.handleChange}/>
-                    <br/>
-                    <input type="submit"
-                           className="user_profile_update_submit"
-                           value={this.state.isProfileSyncedWithServer ? "Данные успешно обновлены!" : "Обновить данные"}
-                           disabled={this.state.isProfileSyncedWithServer}
-                    />
-                </form>
-                <SignOutButton/>
+                <div className="container" id="container">
+                    <div className="form-container sign-up-container">
+                        <form action="#">
+                            <h1>Create Account</h1>
+                            <span>Редактировать данные профиля</span>
+                            <input type="text" placeholder="Name"/>
+                            <input type="email" placeholder="Email"/>
+                            <input type="password" placeholder="Password"/>
+                            <button>Sign Up</button>
+                        </form>
+                    </div>
+                    <div className="form-container sign-in-container">
+                        <form action="#" onSubmit={this.handleSubmitResult}>
+                            <h4>Профиль</h4>
+                            <h6>{this.state.username}</h6>
+                            <label type="user_profile_fields_labels">
+                                {this.state.fullName === '' ? "ФИО (пока не заполнена)" : "ФИО"}
+                            </label>
+                            <input type="user_profile_text"
+                                   placeholder="ФИО"
+                                   value={this.state.fullName}
+                                   name="fullName"
+                                   onChange={this.handleChange}/>
+                            <label type="user_profile_fields_labels">
+                                {this.state.birthdayYear === '' ? "Год рождения (пока не заполнен)" : "Год рождения"}
+                            </label>
+                            <input type="user_profile_text"
+                                   placeholder="Год рождения"
+                                   value={this.state.birthdayYear}
+                                   name="birthdayYear"
+                                   onChange={this.handleChange}/>
+                            <label type="user_profile_fields_labels">
+                                {this.state.userCity === '' ? "Город (пока не заполнена)" : "Город"}
+                            </label>
+                            <input type="user_profile_text"
+                                   placeholder="Город"
+                                   value={this.state.userCity}
+                                   name="userCity"
+                                   onChange={this.handleChange}/>
+                            <label type="user_profile_fields_labels">
+                                {this.state.college === '' ? "Учебное заведение (пока не заполнено)" : "Учебное заведение"}
+                            </label>
+                            <input type="user_profile_text"
+                                   placeholder="Учебное заведение"
+                                   value={this.state.college}
+                                   name="college"
+                                   onChange={this.handleChange}/>
+                            <label type="user_profile_fields_labels">
+                                {this.state.desiredPosition === '' ? "Желаемая должность (пока не заполнена)" : "Желаемая должность"}
+                            </label>
+                            <input type="user_profile_text"
+                                   placeholder="Желаемая должность"
+                                   value={this.state.desiredPosition}
+                                   name="desiredPosition"
+                                   onChange={this.handleChange}/>
+                            <input type="submit"
+                                   className="user_profile_update_submit"
+                                   value={this.state.isProfileSyncedWithServer ? "Данные успешно обновлены!" : "Обновить данные профиля"}
+                                   disabled={this.state.isProfileSyncedWithServer}
+                            />
+                        </form>
+                    </div>
+                    <div className="overlay-container">
+                        <div className="overlay">
+                            <div className="overlay-panel overlay-left">
+                                <h1>Welcome Back!</h1>
+                                <p>To keep connected with us please login with your personal info</p>
+                                <button className="ghost" id="signIn">Sign In</button>
+                            </div>
+                            <div className="overlay-panel overlay-right">
+                                <h6>Мои навыки</h6>
+                                <p>Здесь Вы можете редактировать свои навыки</p>
+                                <button className="ghost" id="signUp">Sign Up</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>)
     }
-}
-
-function SignOutButton() {
-
-    let navigate = useNavigate()
-
-    function handleSignOutButton() {
-        AuthClient.ACCESS_TOKEN = null;
-        AuthClient.USERNAME = null;
-
-        localStorage.setItem('sessionId', null);
-        localStorage.setItem('username', null);
-
-        navigate('/login');
-    }
-
-    return (<button className="user_profile_sign_out" onClick={handleSignOutButton}>Выйти</button>);
 }
 
 export default UserProfile;

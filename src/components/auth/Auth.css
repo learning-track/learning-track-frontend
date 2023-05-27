@@ -16,6 +16,19 @@
     color: #00aad5;
 }
 
+.Auth form div h1 {
+    font-size: 30px;
+}
+
+.Auth form div p {
+    font-size: 15px;
+}
+
+.Auth form .errorMessage {
+    color: red;
+    font-size: 13px;
+}
+
 div.submitButtonHolder {
     text-align: center;
 }
