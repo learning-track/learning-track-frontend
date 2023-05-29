@@ -1,16 +1,19 @@
 import * as React from "react";
+import {animated as a} from "react-spring"
 
 import './Course.css';
+
 import ApiClient from "../../services/ApiClient";
 import ApplicationHeader from "../applicationheader/ApplicationHeader";
 import CourseDTO from "../../dto/CourseDTO";
-import {Spring, useSpring, animated as a} from "react-spring"
 
 class Course extends React.Component {
+
     course: CourseDTO = new CourseDTO();
 
     constructor(props) {
         super(props);
+
         this.state = {
             courseLiked: false,
             courseLoaded: false,
@@ -28,7 +31,7 @@ class Course extends React.Component {
                     this.course.externalLink = json.externalLink;
                     this.course.liked = json.liked;
                     this.course.completed = json.completed;
-                    console.log(this.course)
+
                     this.setState({
                         courseLoaded: true,
                         courseCompleted: this.course.completed,
@@ -36,7 +39,7 @@ class Course extends React.Component {
                     })
                 })
             } else {
-                console.log("Error")
+                console.log("Error: could not get course by course_id!")
             }
         });
 
@@ -45,79 +48,70 @@ class Course extends React.Component {
         this.handleMarkAsReadButton = this.handleMarkAsReadButton.bind(this);
     }
 
-
-    handleMarkAsReadButton(event) {
+    handleMarkAsReadButton() {
         ApiClient.materialCompleted(this.course.id).then(res => {
             if (res.ok) {
-                this.setState({
-                    courseCompleted: true
-                })
+                this.setState({courseCompleted: true})
             } else {
-                console.log("Error")
+                console.log("Error: could not mark course as completed!")
             }
         });
     }
 
-    handleLikeButton(event) {
+    handleLikeButton() {
         ApiClient.learningMaterialLike(this.course.id, "course").then(res => {
             if (res.ok) {
-                this.setState({
-                    courseLiked: true
-                })
+                this.setState({courseLiked: true})
             } else {
-                console.log("Error")
+                console.log("Error: could not like the material!")
             }
         });
     }
 
-    handleUnlikeButton(event) {
+    handleUnlikeButton() {
         ApiClient.learningMaterialUnlike(this.course.id, "course").then(res => {
             if (res.ok) {
-                this.setState({
-                    courseLiked: false
-                })
+                this.setState({courseLiked: false})
             } else {
-                console.log("Error")
+                console.log("Error: could not remove like from the material!")
             }
         });
     }
-
 
     render() {
         if (!this.state.courseLoaded) {
-            return <div className="Course"/>
+            return <div className="course"/>
         }
+
         return (
             <div>
                 <ApplicationHeader/>
-                    <div className="Course">
-                        <div className="CourseType">
-                            <h3 className="CourseTitleH3">{this.course.title}</h3>
-                            <label className="CourseDescLabel">{this.course.description}</label>
-
-                            <br/>
-                            {this.course.externalLink !== "" ?
-                            (<a rel="noopener noreferrer" href={this.course.externalLink} target="_blank">
-                                <button className="ExternalLinkButton">Link</button>
-                            </a>) : null}
-                            <br/><br/>
-                            {this.state.courseCompleted ?
-                                (<button className="MarkAsCompleted" disabled={true} style={{pointerEvents: "none"}}>Completed!</button>) :
-                                (<button className="MarkAsCompleted" onClick={this.handleMarkAsReadButton}>Mark as
-                                    completed</button>)}
-
-                            <div className="likeButton">
-                                {this.state.courseLiked ?
-                                    (<button type="article_liked" onClick={this.handleUnlikeButton}>You liked that
-                                        👍</button>) :
-                                    (<button type="article_unliked" onClick={this.handleLikeButton}>👍</button>)}
-                            </div>
-                            <br/>
-                        </div>
+                <div className="course">
+                    <h1 className="course_title">{this.course.title}</h1>
+                    <p className="course_description">{this.course.description}</p>
+                    {this.course.externalLink !== "" ?
+                        (<a rel="noopener noreferrer" href={this.course.externalLink} target="_blank">
+                            <button className="ExternalLinkButton">Ссылка на курс</button>
+                        </a>) : null}
+                    <div className="button_row">
+                        {this.state.courseCompleted ?
+                            (<button className="MarkAsCompleted after" disabled={true} style={{pointerEvents: "none"}}>
+                                Курс пройден!
+                            </button>) :
+                            (<button className="MarkAsCompleted" onClick={this.handleMarkAsReadButton}>
+                                Отметить пройденным
+                            </button>)}
+                        {this.state.courseLiked ?
+                            (<button type="course_liked" onClick={this.handleUnlikeButton}>
+                                Вы оценили этот курс! (убрать лайк)
+                            </button>) :
+                            (<button type="course_unliked" onClick={this.handleLikeButton}>
+                                Поставить нравится курсу
+                            </button>)}
                     </div>
+                </div>
             </div>)
     }
-
 }
 
 export default Course;

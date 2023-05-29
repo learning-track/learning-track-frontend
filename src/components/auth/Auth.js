@@ -50,7 +50,7 @@ class Auth extends React.Component {
         return (
             <div>
                 <ApplicationHeader/>
-                {!this.state.codeSent ?
+                {this.state.codeSent === null || !this.state.codeSent ?
                     <Email this={this}/> :
                     <Code this={this}/>}
             </div>);
@@ -60,7 +60,10 @@ class Auth extends React.Component {
 function Email(props) {
 
     function handleChange(event) {
-        props.this.setState({[event.target.name]: event.target.value, message: ''});
+        props.this.setState({
+            [event.target.name]: event.target.value,
+            message: ''
+        });
     }
 
     function handleSubmitResult(event) {
@@ -69,25 +72,24 @@ function Email(props) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(props.this.state.username)) {
-            props.this.state.this.setState({message: 'Неверный формат'})
+            props.this.setState({message: 'Неверный формат!'})
+        } else {
+            props.this.setState({codeSent: true})
+
+            AuthClient.auth(props.this.state.username, '')
+                .then((res => {
+                    if (res.ok) {
+                        AuthClient.USERNAME = props.this.state.username;
+                        localStorage.setItem('username', JSON.stringify(props.this.state.username));
+                    } else {
+                        res.json().then(() => {
+                            props.this.setState({message: 'Указана неверная почта!', codeSent: false})
+                        }).catch(() => {
+                            props.this.setState({message: 'Указана неверная почта!', codeSent: false})
+                        })
+                    }
+                }));
         }
-
-        props.this.setState({codeSent: true})
-        console.log(props.this.state.codeSent)
-
-        AuthClient.auth(props.this.state.username, '')
-            .then((res => {
-                if (res.ok) {
-                    AuthClient.USERNAME = props.this.state.username;
-                    localStorage.setItem('username', JSON.stringify(props.this.state.username));
-                } else {
-                    res.json().then(json => {
-                        props.this.setState({message: json.result, password: ''});
-                    }).catch(() => {
-                        props.this.setState({message: 'Ошибка авторизации!'})
-                    })
-                }
-            }));
     }
 
     return (
@@ -125,12 +127,10 @@ function Code(props) {
 
         let password = '';
         for (let i = 0; i < inputs.length - 1; i++) {
-            console.log(inputs[i].value)
             password = password + String(inputs[i].value)
         }
 
         props.this.setState({password: password})
-        console.log(props.this.state.password)
 
         AuthClient.auth(props.this.state.username, password)
             .then((res => {
@@ -150,8 +150,8 @@ function Code(props) {
                         authorized: true
                     });
                 } else {
-                    res.json().then(json => {
-                        props.this.setState({message: json.result, password: ''});
+                    res.json().then(() => {
+                        props.this.setState({message: 'Неверный код!', password: ''});
                     }).catch(() => {
                         props.this.setState({message: 'Ошибка авторизации!'})
                     })
@@ -176,10 +176,13 @@ function Code(props) {
         const inputs = Array.from(event.target.parentElement.getElementsByTagName('input'));
         const index = inputs.indexOf(event.target);
 
-        if (event.key === 'Backspace' && index > 0) {
+        if (event.key === 'Backspace' && index >= 0) {
             event.preventDefault();
-            inputs[index - 1].focus();
             event.target.value = '';
+
+            if (index > 0) {
+                inputs[index - 1].focus();
+            }
         }
 
         if (event.key === 'Delete' && index < 4) {
@@ -204,7 +207,7 @@ function Code(props) {
                         <input type="text" maxLength="1" placeholder="X" onInput={onInput} onKeyDown={onKeyDown}/>
                         <input type="text" maxLength="1" placeholder="X" onInput={onInput} onKeyDown={onKeyDown}/>
                     </div>
-                    <div>{props.this.state.message}</div>
+                    <div className="errorMessage">{props.this.state.message}</div>
                     <p>Время действия кода <span id="mySpan">{props.this.state.secondsLeft}</span> сек.</p>
                     <div className="submitButtonHolder">
                         <input type="submit" className="auth_submit" value="Войти"/>

@@ -18,7 +18,7 @@ class Courses extends React.Component {
 
         this.state = {coursesLoaded: false, courseChosen: false};
 
-        ApiClient.getCourses().then(res => {
+        ApiClient.getCourses(localStorage.getItem('search')).then(res => {
             if (res.ok) {
                 res.json().then(json => {
                     for (let index = 0; index < json['content'].length; index++) {
@@ -46,6 +46,8 @@ class Courses extends React.Component {
                 console.log("Error: could not get courses!")
             }
         });
+
+        localStorage.setItem('search', '')
 
         this.handleSubmitResult = this.handleSubmitResult.bind(this);
     }
@@ -86,7 +88,8 @@ class Courses extends React.Component {
                                 </div>
                                 <a href="#" className="btn btn--white" data-value={this.courses[i].id}
                                    onClick={this.handleSubmitResult}>Подробнее</a>
-                                <a href={this.courses[i].externalLink} className="btn btn--white">Ссылка на курс</a>
+                                <a target="_blank" rel="noopener noreferrer" href={this.courses[i].externalLink}
+                                   className="btn btn--white">Ссылка на курс</a>
                             </div>
                         </div>
                     </div>
@@ -108,8 +111,8 @@ class Courses extends React.Component {
         return (
             <div>
                 <ApplicationHeader/>
-                <div className="Articles">
-                    <h3 type="articles_page_title">Курсы</h3>
+                <div>
+                    <h3 type="courses_page_title">Курсы</h3>
                     {this.state.coursesLoaded ? rowsRender : <Loader/>}
                 </div>
             </div>

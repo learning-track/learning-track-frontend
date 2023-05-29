@@ -20,7 +20,9 @@ class ApiClient {
     static POST_UPDATE_SKILLS = '/skills';
     static DELETE_SKILL = '/skills/remove';
     static GET_TRACK_LATEST = '/tracks/latest';
+    static GET_TRACKS = '/tracks';
     static POST_TRACK_GENERATE = '/tracks/generate';
+    static DELETE_TRACK = '/tracks/';
 
     static sendQuestionnaire(name: string): Promise<Response> {
         return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_QUESTIONNAIRE, {
@@ -68,8 +70,8 @@ class ApiClient {
         });
     }
 
-    static getCourses(): Promise<Response> {
-        return fetch(ClientConfig.SERVER_LINK + ApiClient.GET_COURSE_LIST, {
+    static getCourses(search: string): Promise<Response> {
+        return fetch(ClientConfig.SERVER_LINK + ApiClient.GET_COURSE_LIST + '?search=' + search, {
             method: 'GET', headers: {
                 'Content-Type': 'application/json',
                 'Authorization': (AuthClient.ACCESS_TOKEN != null) ? AuthClient.ACCESS_TOKEN : ''
@@ -103,17 +105,23 @@ class ApiClient {
         });
     }
 
-    static learningMaterialLike(id, learningMaterialType): Promise<Response> {
+    static learningMaterialLike(id): Promise<Response> {
         return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_ADD_LIKE + id + '/like', {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN}
         });
     }
 
-    static learningMaterialUnlike(id, learningMaterialType): Promise<Response> {
-        return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_REMOVE_LIKE  + id + '/remove-like', {
+    static learningMaterialUnlike(id): Promise<Response> {
+        return fetch(ClientConfig.SERVER_LINK + ApiClient.POST_REMOVE_LIKE + id + '/remove-like', {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN}
+        });
+    }
+
+    static getTracks(): Promise<Response> {
+        return fetch(ClientConfig.SERVER_LINK + ApiClient.GET_TRACKS, {
+            method: 'GET', headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN}
         });
     }
 
@@ -161,6 +169,13 @@ class ApiClient {
             method: 'DELETE',
             headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN},
             body: JSON.stringify({id: parseInt(id)})
+        });
+    }
+
+    static deleteTrackById(trackId): Promise<Response> {
+        return fetch(ClientConfig.SERVER_LINK + ApiClient.DELETE_TRACK + trackId, {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json', 'Authorization': AuthClient.ACCESS_TOKEN}
         });
     }
 }

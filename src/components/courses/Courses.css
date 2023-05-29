@@ -22,7 +22,7 @@ body {
     box-sizing: border-box;
 }
 
-h3[type="articles_page_title"] {
+h3[type="courses_page_title"] {
     width: 100%;
     text-align: center;
     color: #00aad5;
@@ -30,7 +30,7 @@ h3[type="articles_page_title"] {
     margin-top: 20px;
 }
 
-/*--------------------------------------------------------ROW--------------------------------------------------------*/
+/*-------------------------------------------------COURSES PAGE: ROW-------------------------------------------------*/
 .row {
     max-width: 114rem;
     margin: 0 auto;
@@ -105,7 +105,7 @@ h3[type="articles_page_title"] {
     background-color: #fff;
 }
 
-/*---------------------------------------------------COURSES' CARDS---------------------------------------------------*/
+/*------------------------------------------------COURSES PAGE: CARDS------------------------------------------------*/
 .card {
     -webkit-perspective: 150rem;
     perspective: 150rem;

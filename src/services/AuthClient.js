@@ -5,6 +5,7 @@ class AuthClient {
     static AUTH_ENDPOINT = '/auth'
     static LOGIN_ENDPOINT = '/auth/login';
     static REGISTER_ENDPOINT = '/auth/register';
+
     static USERNAME = JSON.parse(localStorage.getItem('username')) || null;
     static ACCESS_TOKEN = JSON.parse(localStorage.getItem('sessionId')) || null;
 

@@ -1,5 +1,6 @@
-class JobDTO {
+class VacancyTO {
     id;
+    imgUrl;
     title;
     description;
     city;
@@ -10,6 +11,7 @@ class JobDTO {
     workLine;
     completed;
     liked;
+    url;
 }
 
-export default JobDTO;
+export default VacancyTO;

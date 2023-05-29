@@ -1,7 +1,8 @@
 import * as React from "react";
 import {Navigate, useNavigate} from "react-router-dom";
-import {useSpring, animated as a} from "react-spring"
 import HashLoader from "react-spinners/HashLoader";
+
+import '@fortawesome/fontawesome-free/css/all.css';
 
 import './Track.css';
 
@@ -14,6 +15,7 @@ import {TrackStepDTO} from "../../dto/TrackStepDTO";
 class Track extends React.Component {
 
     track: TrackDTO = new TrackDTO();
+    tracks: TrackDTO[] = [];
 
     constructor(props) {
         super(props);
@@ -30,12 +32,12 @@ class Track extends React.Component {
     }
 
     handleGenerateTrackButton() {
-        this.setState({
-            trackGenerating: true
-        });
+        this.setState({trackGenerating: true});
+
         ApiClient.generateNewTrack().then(res => {
             if (res.status === 200) {
                 this.requestTrack();
+                window.location.reload();
             } else if (res.status === 204) {
                 this.setState({errorMessage: "Unable to generate a track. Try change your skills or desired position"})
                 this.requestTrack();
@@ -63,37 +65,41 @@ class Track extends React.Component {
     }
 
     requestTrack() {
-        ApiClient.getLatestTrack().then(res => {
+        ApiClient.getTracks().then(res => {
             if (res.ok) {
                 res.json().then(json => {
-                    console.log(json)
-                    this.track = new TrackDTO();
-                    this.track.trackId = json.trackId;
-                    this.track.destination = json.destination;
-                    if (json.trackSteps != null) {
-                        for (let index = 0; index < json.trackSteps.length; index++) {
-                            let trackStep: TrackStepDTO = new TrackStepDTO();
-                            trackStep.completed = json.trackSteps[index].completed;
-                            trackStep.stepOrderNumber = json.trackSteps[index].stepOrderNumber;
-                            trackStep.trackStepId = json.trackSteps[index].trackStepId;
+                    for (let i = 0; i < json.length; i++) {
+                        this.track = new TrackDTO();
+                        this.track.trackId = json[i].trackId;
+                        this.track.destination = json[i].destination;
 
-                            trackStep.material.id = json.trackSteps[index].material.id;
-                            trackStep.material.learningMaterialType = json.trackSteps[index].material.learningMaterialType
-                            trackStep.material.learningMaterialTypeDisplay = this.getMaterialType(json.trackSteps[index].material.learningMaterialType);
-                            trackStep.material.description = json.trackSteps[index].material.description;
-                            trackStep.material.title = json.trackSteps[index].material.title;
+                        if (json[i].trackSteps != null) {
+                            for (let index = 0; index < json[i].trackSteps.length; index++) {
+                                let trackStep: TrackStepDTO = new TrackStepDTO();
+                                trackStep.completed = json[i].trackSteps[index].completed;
+                                trackStep.stepOrderNumber = json[i].trackSteps[index].stepOrderNumber;
+                                trackStep.trackStepId = json[i].trackSteps[index].trackStepId;
 
-                            this.track.addTrackStep(trackStep);
+                                trackStep.material.id = json[i].trackSteps[index].material.id;
+                                trackStep.material.learningMaterialType = json[i].trackSteps[index].material.learningMaterialType
+                                trackStep.material.learningMaterialTypeDisplay = this.getMaterialType(json[i].trackSteps[index].material.learningMaterialType);
+                                trackStep.material.description = json[i].trackSteps[index].material.description;
+                                trackStep.material.title = json[i].trackSteps[index].material.title;
+
+                                this.track.addTrackStep(trackStep);
+                            }
+
+                            this.track.trackSteps.sort((a, b) => {
+                                return a.stepOrderNumber > b.stepOrderNumber
+                            })
                         }
 
-                        this.track.trackSteps.sort((a, b) => {
-                            return a.stepOrderNumber > b.stepOrderNumber
+                        this.setState({
+                            trackLoaded: true
                         })
+
+                        this.tracks.push(this.track);
                     }
-                    console.log(this.track)
-                    this.setState({
-                        trackLoaded: true
-                    })
                 })
             } else {
                 console.log("Error")
@@ -112,28 +118,21 @@ class Track extends React.Component {
         return (
             <div>
                 <ApplicationHeader/>
-
                 <div className="Track">
-                    {this.state.errorMessage !== "" ? (<NotificationError text={this.state.errorMessage}/>) : null}
                     {(this.state.trackGenerating) ?
-                        <button className="GenerateTrackButton GenerateTrackBeingGeneratedButton"
-                                disabled={true}>
+                        <button className="GenerateTrackButton GenerateTrackBeingGeneratedButton" disabled={true}>
                             Генерация трека...
                         </button>
                         :
-                        <button className="GenerateTrackButton"
-                                onClick={this.handleGenerateTrackButton}>
+                        <button className="GenerateTrackButton" onClick={this.handleGenerateTrackButton}>
                             Сгенерировать новый трек
                         </button>
                     }
-                    {this.state.trackLoaded && !this.state.trackGenerating
-                        ? (<div>
-                            <div className="container"><ComponentTrackView track={this.track}/></div>
-                            <div className="container"><ComponentTrackView track={this.track}/></div>
-                        </div>)
-                        : this.state.trackGenerating
-                            ? (<SpinnerView/>)
-                            : null
+                    {this.state.trackLoaded && !this.state.trackGenerating ? (
+                            <div className="stepa">
+                                <ComponentTrackView track={this.track} tracks={this.tracks}/>
+                            </div>) :
+                        this.state.trackGenerating ? (<Loader/>) : null
                     }
                 </div>
             </div>
@@ -141,68 +140,58 @@ class Track extends React.Component {
     }
 }
 
-export function NotificationError(props) {
-    const contentProps = useSpring({
-        from: {opacity: 0},
-        to: {opacity: 1}
-    });
-    return (
-        <a.div style={contentProps}>
-            <div className="NotificationError">
-                <label className="NotificationErrorLabel">
-                    {props.text}
-                </label>
-            </div>
-        </a.div>
-    )
-}
-
 function ComponentTrackView(props) {
-    let trackRender = []
-    let navigate = useNavigate();
 
-    trackRender.push(
-        (
-            <div id="trackDest" className="TrackStep TrackDest">
-                <div className="TrackStepContent">
-                    <label className="TrackStepTitle"> {props.track.destination}</label>
-                </div>
-            </div>
-        ))
-
-    for (let index = 0; index < props.track.trackSteps.length; index++) {
-        trackRender.push((
-            <div className="track-item"
-                 onClick={() => {
-                     navigate('/' + props.track.trackSteps[index].material.learningMaterialType + '/' + props.track.trackSteps[index].material.id);
-                 }}>
-                <div className="track-title">{props.track.trackSteps[index].material.title}</div>
-                <div
-                    className="track-description">{props.track.trackSteps[index].material.description.substring(0, 100)}</div>
-                <div
-                    className={props.track.trackSteps[index].completed ? "track-status status-completed" : "track-status status-not-completed"}>{props.track.trackSteps[index].completed ? "Курс пройден" : "Курс не пройден"}</div>
-            </div>
-        ))
+    function handleDeleteTrack(trackId) {
+        ApiClient.deleteTrackById(trackId).then(res => {
+            if (res.ok) {
+                window.location.reload()
+            } else {
+                console.log("Error: could not delete track by track_id!")
+            }
+        });
     }
 
+    let navigate = useNavigate();
 
-    const contentProps = useSpring({
-        from: {opacity: 0},
-        to: {opacity: 1}
-    });
-    return (
-        <a.div style={contentProps}>
-            <div className="TrackView">
-                {trackRender}
+    let aRender = []
+    for (let i = 0; i < props.tracks.length; i++) {
+        let trackRender = []
+        for (let index = 0; index < props.tracks[i].trackSteps.length; index++) {
+            trackRender.push((
+                <li className="step-wizard-item current-item" onClick={() => {
+                    navigate('/' + props.tracks[i].trackSteps[index].material.learningMaterialType + '/' + props.tracks[i].trackSteps[index].material.id);
+                }}>
+                    <span className="progress-count">{index + 1}</span>
+                    {props.tracks[i].trackSteps[index].completed ?
+                        <span className="progress-label_completed">{props.tracks[i].trackSteps[index].material.title}</span> :
+                        <span className="progress-label">{props.tracks[i].trackSteps[index].material.title}</span>}
+                </li>
+            ))
+        }
+
+        aRender.push(
+            <div className="myDiv">
+                <h1 className="stepaTitle">
+                    {props.tracks[i].destination}
+                    <span className="fa fa-trash" onClick={() => handleDeleteTrack(props.tracks[i].trackId)}></span>
+                </h1>
+                <section className="step-wizard">
+                    <ul className="step-wizard-list">
+                        {trackRender}
+                    </ul>
+                </section>
             </div>
-        </a.div>
-    )
+        );
+    }
+
+    return aRender;
 }
 
-function SpinnerView() {
+function Loader() {
     return (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "65vh"}}>
-            <HashLoader size={180} color={"#00aad5"} />
+        <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "65vh"}}>
+            <HashLoader size={180} color={"#00aad5"}/>
         </div>
     )
 }

@@ -1,12 +1,17 @@
 import * as React from "react";
-import {Navigate, useNavigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
+import HashLoader from "react-spinners/HashLoader";
+import CreatableSelect from "react-select/creatable";
+
+import '@fortawesome/fontawesome-free/css/all.css';
 
 import './Profile.css';
 
-import User from "../../dto/User";
 import ApiClient from "../../services/ApiClient";
-import AuthClient from "../../services/AuthClient";
 import ApplicationHeader from "../applicationheader/ApplicationHeader";
+import AuthClient from "../../services/AuthClient";
+import User from "../../dto/User";
+import UserSkillDTO from "../../dto/UserSkillDTO";
 
 class UserProfile extends React.Component {
 
@@ -15,6 +20,7 @@ class UserProfile extends React.Component {
 
         this.state = {
             username: '', fullName: '', userCity: '', college: '', birthdayYear: '', desiredPosition: '',
+            skillsNumber: 0, updating: true
         };
 
         ApiClient.getCurrentUser().then(res => {
@@ -28,6 +34,7 @@ class UserProfile extends React.Component {
                         birthdayYear: json.birthdayYear || '',
                         desiredPosition: json.desiredPosition || '',
 
+
                         isProfileSyncedWithServer: false
                     })
                 })
@@ -36,8 +43,39 @@ class UserProfile extends React.Component {
             }
         });
 
+        ApiClient.getAllSkillNames()
+            .then(res => {
+                if (res.ok) {
+                    res.json().then(json => {
+                        for (let i = 0; i < json.length; i++) {
+                            this.skillsOptions.push(
+                                {label: json[i], value: json[i]}
+                            );
+                        }
+                    })
+                } else {
+                    console.log("Error")
+                }
+            });
+
+        ApiClient.requestSkills()
+            .then(res => {
+                if (res.ok) {
+                    res.json().then(json => {
+                        this.updateUserSkills(json)
+                    })
+
+                } else {
+                    console.log("Error")
+                }
+            });
+
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmitResult = this.handleSubmitResult.bind(this);
+
+        this.handleChange2 = this.handleChange2.bind(this);
+        this.handleAddSkillButton = this.handleAddSkillButton.bind(this);
+        this.deleteButtonClick = this.deleteButtonClick.bind(this);
     }
 
     handleChange(event) {
@@ -77,22 +115,132 @@ class UserProfile extends React.Component {
             });
     }
 
+    handleAddSkillButton(event) {
+        this.userSkills.push({level: this.skillLevelOptions[0].value});
+        this.setState({
+            skillsNumber: this.state.skillsNumber + 1
+        })
+    }
+
+    updateUserSkills(json) {
+        this.userSkills = []
+        console.log(json)
+        for (let i = 0; i < json.length; i++) {
+            let userSkill = new UserSkillDTO();
+            userSkill.id = json[i].id
+            userSkill.username = json[i].username
+            userSkill.level = json[i].level
+            userSkill.skill = json[i].skill
+            this.userSkills.push(userSkill)
+        }
+        this.userSkills.sort((a,b) => (a.id - b.id))
+        this.setState({
+            skillsNumber: this.userSkills.length,
+            updating: false
+        })
+    }
+
+    updateSkills() {
+        this.setState({
+            updating: true
+        })
+        ApiClient.updateSkills(this.userSkills)
+            .then(res => {
+                if (res.ok) {
+                    res.json().then(json => {
+                        this.updateUserSkills(json)
+                    })
+                } else {
+                    console.log("Error")
+                }
+            });
+    }
+
+    handleChange2(newValue, i, type) {
+        if (newValue === null) {
+            return;
+        }
+        if (type === "skill") {
+            this.userSkills[i].skill = newValue.value
+        } else {
+            this.userSkills[i].level = newValue.value
+        }
+
+        if (newValue.__isNew__) {
+            this.skillsOptions.push({value: newValue.value, label: newValue.label})
+        }
+        // console.log(this.userSkills)
+        this.updateSkills();
+    }
+
+    deleteButtonClick(id, index) {
+        this.setState({
+            updating: true
+        })
+        console.log(id);
+        if (id === undefined || id === null) {
+            this.userSkills.splice(index, 1);
+            this.setState({
+                updating: false
+            })
+            return;
+        }
+        ApiClient.deleteSkill(parseInt(id))
+            .then(res => {
+                if (res.ok) {
+                    res.json().then(json => {
+                        this.updateUserSkills(json)
+                    })
+                } else {
+                    console.log("Error")
+                }
+            });
+    }
+
+    skillsOptions = []
+    skillLevelOptions = [
+        {label: "beginner", value: 1.0},
+        {label: "intermediate", value: 2.0},
+        {label: "expert", value: 3.0}
+    ]
+    userSkillsView = []
+    userSkills: UserSkillDTO[] = []
+
     render() {
-
-        // const signUpButton = document.getElementById('signUp');
-        // const signInButton = document.getElementById('signIn');
-        // const container = document.getElementById('container');
-        //
-        // signUpButton.addEventListener('click', () => {
-        //     container.classList.add("right-panel-active");
-        // });
-        //
-        // signInButton.addEventListener('click', () => {
-        //     container.classList.remove("right-panel-active");
-        // });
-
         if (AuthClient.ACCESS_TOKEN == null) {
             return (<Navigate to='/login'/>)
+        }
+
+        const container = document.getElementById('container');
+
+        this.userSkillsView = []
+        for (let i = 0; i < this.userSkills.length; i++) {
+            this.userSkillsView.push(
+                (<div className="SkillView">
+                    <CreatableSelect className="SelectMenu"
+                        // isClearable
+                                     onChange={(e) => this.handleChange2(e, i, "skill")}
+                                     styles={selectStyles}
+                                     placeholder="Select skill"
+                                     options={this.skillsOptions}
+                                     defaultValue={{label: this.userSkills[i].skill, value: this.userSkills[i].skill}}
+                                     value={{label: this.userSkills[i].skill, value: this.userSkills[i].skill}}
+                                     key={"skill"+i}
+                    /><CreatableSelect className="SelectLevelMenu"
+                    // isClearable
+                                       onChange={(e) => this.handleChange2(e, i, "level")}
+                                       styles={selectStyles}
+                                       placeholder="Select level"
+                                       options={this.skillLevelOptions}
+                    // defaultValue={{label: this.userSkills[i].level, value: this.userSkills[i].level}}
+                                       value={this.skillLevelOptions.find(x=>x.value===this.userSkills[i].level)}
+                                       key={"level"+i}
+                />
+                    <button className="DeleteSkillButton" onClick={e => this.deleteButtonClick(this.userSkills[i].id, i)}>
+                        <span className="fa fa-trash"></span>
+                    </button>
+                </div>)
+            )
         }
 
         return (<div>
@@ -101,58 +249,59 @@ class UserProfile extends React.Component {
                 <div className="container" id="container">
                     <div className="form-container sign-up-container">
                         <form action="#">
-                            <h1>Create Account</h1>
-                            <span>Редактировать данные профиля</span>
-                            <input type="text" placeholder="Name"/>
-                            <input type="email" placeholder="Email"/>
-                            <input type="password" placeholder="Password"/>
-                            <button>Sign Up</button>
+                            <h4>Мои навыки</h4>
+                            <span>{this.state.username}</span>
+                            {this.userSkillsView}
+                            {this.state.updating ? <Loader/> :
+                            <button className="ghost" onClick={this.handleAddSkillButton}>Добавить навык</button>}
                         </form>
                     </div>
                     <div className="form-container sign-in-container">
                         <form action="#" onSubmit={this.handleSubmitResult}>
                             <h4>Профиль</h4>
-                            <h6>{this.state.username}</h6>
-                            <label type="user_profile_fields_labels">
-                                {this.state.fullName === '' ? "ФИО (пока не заполнена)" : "ФИО"}
-                            </label>
-                            <input type="user_profile_text"
-                                   placeholder="ФИО"
-                                   value={this.state.fullName}
-                                   name="fullName"
-                                   onChange={this.handleChange}/>
-                            <label type="user_profile_fields_labels">
-                                {this.state.birthdayYear === '' ? "Год рождения (пока не заполнен)" : "Год рождения"}
-                            </label>
-                            <input type="user_profile_text"
-                                   placeholder="Год рождения"
-                                   value={this.state.birthdayYear}
-                                   name="birthdayYear"
-                                   onChange={this.handleChange}/>
-                            <label type="user_profile_fields_labels">
-                                {this.state.userCity === '' ? "Город (пока не заполнена)" : "Город"}
-                            </label>
-                            <input type="user_profile_text"
-                                   placeholder="Город"
-                                   value={this.state.userCity}
-                                   name="userCity"
-                                   onChange={this.handleChange}/>
-                            <label type="user_profile_fields_labels">
-                                {this.state.college === '' ? "Учебное заведение (пока не заполнено)" : "Учебное заведение"}
-                            </label>
-                            <input type="user_profile_text"
-                                   placeholder="Учебное заведение"
-                                   value={this.state.college}
-                                   name="college"
-                                   onChange={this.handleChange}/>
-                            <label type="user_profile_fields_labels">
-                                {this.state.desiredPosition === '' ? "Желаемая должность (пока не заполнена)" : "Желаемая должность"}
-                            </label>
-                            <input type="user_profile_text"
-                                   placeholder="Желаемая должность"
-                                   value={this.state.desiredPosition}
-                                   name="desiredPosition"
-                                   onChange={this.handleChange}/>
+                            <span>{this.state.username}</span>
+                            <div>
+                                <label type="user_profile_fields_labels">
+                                    {this.state.fullName === '' ? "ФИО (пока не заполнена)" : "ФИО"}
+                                </label>
+                                <input type="user_profile_text"
+                                       placeholder="ФИО"
+                                       value={this.state.fullName}
+                                       name="fullName"
+                                       onChange={this.handleChange}/>
+                                <label type="user_profile_fields_labels">
+                                    {this.state.birthdayYear === '' ? "Год рождения (пока не заполнен)" : "Год рождения"}
+                                </label>
+                                <input type="user_profile_text"
+                                       placeholder="Год рождения"
+                                       value={this.state.birthdayYear}
+                                       name="birthdayYear"
+                                       onChange={this.handleChange}/>
+                                <label type="user_profile_fields_labels">
+                                    {this.state.userCity === '' ? "Город (пока не заполнена)" : "Город"}
+                                </label>
+                                <input type="user_profile_text"
+                                       placeholder="Город"
+                                       value={this.state.userCity}
+                                       name="userCity"
+                                       onChange={this.handleChange}/>
+                                <label type="user_profile_fields_labels">
+                                    {this.state.college === '' ? "Учебное заведение (пока не заполнено)" : "Учебное заведение"}
+                                </label>
+                                <input type="user_profile_text"
+                                       placeholder="Учебное заведение"
+                                       value={this.state.college}
+                                       name="college"
+                                       onChange={this.handleChange}/>
+                                <label type="user_profile_fields_labels">
+                                    {this.state.desiredPosition === '' ? "Желаемая должность (пока не заполнена)" : "Желаемая должность"}
+                                </label>
+                                <input type="user_profile_text"
+                                       placeholder="Желаемая должность"
+                                       value={this.state.desiredPosition}
+                                       name="desiredPosition"
+                                       onChange={this.handleChange}/>
+                            </div>
                             <input type="submit"
                                    className="user_profile_update_submit"
                                    value={this.state.isProfileSyncedWithServer ? "Данные успешно обновлены!" : "Обновить данные профиля"}
@@ -163,14 +312,14 @@ class UserProfile extends React.Component {
                     <div className="overlay-container">
                         <div className="overlay">
                             <div className="overlay-panel overlay-left">
-                                <h1>Welcome Back!</h1>
-                                <p>To keep connected with us please login with your personal info</p>
-                                <button className="ghost" id="signIn">Sign In</button>
+                                <h1>Мои навыки</h1>
+                                <p>Здесь Вы можете редактировать свои навыки</p>
+                                <button className="ghost" id="signIn" onClick={() => {container.classList.remove("right-panel-active");}}>Перейти к профилю</button>
                             </div>
                             <div className="overlay-panel overlay-right">
-                                <h6>Мои навыки</h6>
-                                <p>Здесь Вы можете редактировать свои навыки</p>
-                                <button className="ghost" id="signUp">Sign Up</button>
+                                <h1>Мой профиль</h1>
+                                <p>Здесь Вы можете редактировать данные своего профиля</p>
+                                <button className="ghost" id="signUp" onClick={() => {container.classList.add("right-panel-active");}}>Перейти к навыкам</button>
                             </div>
                         </div>
                     </div>
@@ -178,6 +327,45 @@ class UserProfile extends React.Component {
             </div>
         </div>)
     }
+}
+
+const selectStyles = {
+    control: (provided) => ({
+        ...provided,
+        minHeight: '30px',
+        width: '200px',
+        height: '30px',
+        fontSize: '20pt',
+        cursor: 'pointer'
+    }),
+    option: (provided) => ({
+        ...provided,
+        minHeight: '30px',
+        height: '30px',
+        fontSize: '12pt',
+        cursor: 'pointer'
+    }),
+    valueContainer: (provided) => ({
+        ...provided,
+        height: '30px'
+    }),
+
+    input: (provided) => ({
+        ...provided,
+        margin: '0px',
+    }),
+    indicatorsContainer: (provided) => ({
+        ...provided,
+        height: '30px',
+    }),
+}
+
+function Loader() {
+    return (
+        <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "65vh"}}>
+            <HashLoader size={180} color={"#00aad5"}/>
+        </div>
+    )
 }
 
 export default UserProfile;

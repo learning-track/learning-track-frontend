@@ -14,14 +14,15 @@
     background: linear-gradient(#ffffff, #ffffff, #ffffff);
     height: 92vh;
     color: #00aad5;
+    padding-bottom: 40px;
 }
 
 .Auth form div h1 {
-    font-size: 30px;
+    font-size: 40px;
 }
 
 .Auth form div p {
-    font-size: 15px;
+    font-size: 25px;
 }
 
 .Auth form .errorMessage {
@@ -31,6 +32,7 @@
 
 div.submitButtonHolder {
     text-align: center;
+    width: 400px;
 }
 
 input.auth_submit {
@@ -49,13 +51,13 @@ input.auth_submit:hover {
     background-color: #00c253;
 }
 
-/*-------------------------------------------------------EMAIL-------------------------------------------------------*/
+/*--------------------------------------------------AUTH PAGE: EMAIL--------------------------------------------------*/
 .email {
     display: flex;
 }
 
 .email input {
-    width: 300px;
+    width: 500px;
     font-size: 20px;
     padding: 10px;
     text-align: center;
@@ -69,7 +71,7 @@ input.auth_submit:hover {
     transition: all 0.1s;
 }
 
-/*-------------------------------------------------VERIFICATION CODE-------------------------------------------------*/
+/*--------------------------------------------AUTH PAGE: VERIFICATION CODE--------------------------------------------*/
 .code {
     display: flex;
 }
@@ -91,5 +93,4 @@ input.auth_submit:hover {
 
 .code input:focus {
     border: 2px solid #00aad5;
-    /*box-shadow: 0 0 1px 1px #00aad5;*/
 }
