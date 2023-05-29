@@ -24,7 +24,7 @@ class Vacancies extends React.Component {
             if (res.ok) {
                 let desiredPosition = ''
                 res.json().then(json => {
-                    desiredPosition = json.desiredPosition !== null ? json.desiredPosition : '';
+                    desiredPosition = json.desiredPosition !== undefined && json.desiredPosition !== null ? json.desiredPosition : '';
 
                     HeadHunterClient.getVacancies(desiredPosition).then(res => {
                         if (res.ok) {

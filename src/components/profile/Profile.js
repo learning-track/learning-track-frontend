@@ -115,7 +115,7 @@ class UserProfile extends React.Component {
             });
     }
 
-    handleAddSkillButton(event) {
+    handleAddSkillButton() {
         this.userSkills.push({level: this.skillLevelOptions[0].value});
         this.setState({
             skillsNumber: this.state.skillsNumber + 1
@@ -163,7 +163,7 @@ class UserProfile extends React.Component {
         if (type === "skill") {
             this.userSkills[i].skill = newValue.value
         } else {
-            this.userSkills[i].level = newValue.value
+            this.userSkills[i].level = newValue.target.id.charAt(newValue.target.id.length - 1)
         }
 
         if (newValue.__isNew__) {
@@ -206,6 +206,8 @@ class UserProfile extends React.Component {
     userSkillsView = []
     userSkills: UserSkillDTO[] = []
 
+
+
     render() {
         if (AuthClient.ACCESS_TOKEN == null) {
             return (<Navigate to='/login'/>)
@@ -215,6 +217,8 @@ class UserProfile extends React.Component {
 
         this.userSkillsView = []
         for (let i = 0; i < this.userSkills.length; i++) {
+            let ss = 'toggle-' + i
+            // console.log(this.userSkills[i].level)
             this.userSkillsView.push(
                 (<div className="SkillView">
                     <CreatableSelect className="SelectMenu"
@@ -226,19 +230,37 @@ class UserProfile extends React.Component {
                                      defaultValue={{label: this.userSkills[i].skill, value: this.userSkills[i].skill}}
                                      value={{label: this.userSkills[i].skill, value: this.userSkills[i].skill}}
                                      key={"skill"+i}
-                    /><CreatableSelect className="SelectLevelMenu"
-                    // isClearable
-                                       onChange={(e) => this.handleChange2(e, i, "level")}
-                                       styles={selectStyles}
-                                       placeholder="Select level"
-                                       options={this.skillLevelOptions}
-                    // defaultValue={{label: this.userSkills[i].level, value: this.userSkills[i].level}}
-                                       value={this.skillLevelOptions.find(x=>x.value===this.userSkills[i].level)}
-                                       key={"level"+i}
-                />
-                    <button className="DeleteSkillButton" onClick={e => this.deleteButtonClick(this.userSkills[i].id, i)}>
-                        <span className="fa fa-trash"></span>
-                    </button>
+                    />
+                    <div className="toggle-row">
+                        <div className="toggle-option">
+                            {this.userSkills[i].level === 1 ?
+                                <input type="radio" id={ss + '1'} name={"toggle-group-" + i} checked
+                                       onClick={(e) => this.handleChange2(e, i, "level")}/> :
+                                <input type="radio" id={ss + '1'} name={"toggle-group-" + i}
+                                       onClick={(e) => this.handleChange2(e, i, "level")}/>
+                            }
+                            <label htmlFor={ss + '1'}>1</label>
+                        </div>
+                        <div className="toggle-option">
+                            {this.userSkills[i].level === 2 ?
+                                <input type="radio" id={ss + '2'} name={"toggle-group-" + i} checked
+                                       onClick={(e) => this.handleChange2(e, i, "level")}/> :
+                                <input type="radio" id={ss + '2'} name={"toggle-group-" + i}
+                                       onClick={(e) => this.handleChange2(e, i, "level")}/>
+                            }
+                            <label htmlFor={ss + '2'}>2</label>
+                        </div>
+                        <div className="toggle-option">
+                            {this.userSkills[i].level === 3 ?
+                                <input type="radio" id={ss + '3'} name={"toggle-group-" + i} checked
+                                       onClick={(e) => this.handleChange2(e, i, "level")}/> :
+                                <input type="radio" id={ss + '3'} name={"toggle-group-" + i}
+                                       onClick={(e) => this.handleChange2(e, i, "level")}/>
+                            }
+                            <label htmlFor={ss + '3'}>3</label>
+                        </div>
+                    </div>
+                    <span className="fa fa-trash" onClick={() => this.deleteButtonClick(this.userSkills[i].id, i)}></span>
                 </div>)
             )
         }
@@ -248,13 +270,14 @@ class UserProfile extends React.Component {
             <div className="UserProfile">
                 <div className="container" id="container">
                     <div className="form-container sign-up-container">
-                        <form action="#">
+                        {/*<form action="#">*/}
+                        <div className="wow">
                             <h4>Мои навыки</h4>
-                            <span>{this.state.username}</span>
+                            <span>Уровни: 1 - начальный, 2 - средний, 3 - продвинутый</span>
                             {this.userSkillsView}
                             {this.state.updating ? <Loader/> :
                             <button className="ghost" onClick={this.handleAddSkillButton}>Добавить навык</button>}
-                        </form>
+                        </div>
                     </div>
                     <div className="form-container sign-in-container">
                         <form action="#" onSubmit={this.handleSubmitResult}>
@@ -334,9 +357,9 @@ const selectStyles = {
         ...provided,
         minHeight: '30px',
         width: '200px',
-        height: '30px',
+        height: '40px',
         fontSize: '20pt',
-        cursor: 'pointer'
+        cursor: 'pointer',
     }),
     option: (provided) => ({
         ...provided,
@@ -344,19 +367,6 @@ const selectStyles = {
         height: '30px',
         fontSize: '12pt',
         cursor: 'pointer'
-    }),
-    valueContainer: (provided) => ({
-        ...provided,
-        height: '30px'
-    }),
-
-    input: (provided) => ({
-        ...provided,
-        margin: '0px',
-    }),
-    indicatorsContainer: (provided) => ({
-        ...provided,
-        height: '30px',
     }),
 }
 

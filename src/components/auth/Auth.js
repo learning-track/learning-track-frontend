@@ -178,6 +178,11 @@ function Code(props) {
 
         if (event.key === 'Backspace' && index >= 0) {
             event.preventDefault();
+
+            props.this.setState({
+                message: ''
+            });
+
             event.target.value = '';
 
             if (index > 0) {
@@ -187,6 +192,11 @@ function Code(props) {
 
         if (event.key === 'Delete' && index < 4) {
             event.preventDefault();
+
+            props.this.setState({
+                message: ''
+            });
+
             inputs[index + 1].focus();
             event.target.value = '';
         }
