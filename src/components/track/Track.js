@@ -89,9 +89,8 @@ class Track extends React.Component {
                                 this.track.addTrackStep(trackStep);
                             }
 
-                            this.track.trackSteps.sort((a, b) => {
-                                return a.stepOrderNumber > b.stepOrderNumber
-                            })
+                            this.track.trackSteps.sort((a, b) =>
+                                a.stepOrderNumber - b.stepOrderNumber);
                         }
 
                         this.tracks.push(this.track);
