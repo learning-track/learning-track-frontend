@@ -26,54 +26,9 @@ class Track extends React.Component {
             errorMessage: ""
         };
 
-        ApiClient.getTracks().then(res => {
-            if (res.ok) {
-                res.json().then(json => {
-                    for (let i = 0; i < json.length; i++) {
-                        let track = new TrackDTO();
-                        track.trackId = json[i].trackId;
-                        track.destination = json[i].destination;
-
-                        if (json[i].trackSteps != null) {
-                            for (let index = 0; index < json[i].trackSteps.length; index++) {
-                                let trackStep: TrackStepDTO = new TrackStepDTO();
-                                trackStep.completed = json[i].trackSteps[index].completed;
-                                trackStep.stepOrderNumber = json[i].trackSteps[index].stepOrderNumber;
-                                trackStep.trackStepId = json[i].trackSteps[index].trackStepId;
-
-                                trackStep.material.id = json[i].trackSteps[index].material.id;
-                                trackStep.material.learningMaterialType = json[i].trackSteps[index].material.learningMaterialType
-                                trackStep.material.learningMaterialTypeDisplay = this.getMaterialType(json[i].trackSteps[index].material.learningMaterialType);
-                                trackStep.material.description = json[i].trackSteps[index].material.description;
-                                trackStep.material.title = json[i].trackSteps[index].material.title;
-
-                                track.addTrackStep(trackStep);
-                            }
-
-                            track.trackSteps.sort((a, b) => {
-                                return a.stepOrderNumber > b.stepOrderNumber
-                            })
-                        }
-
-                        this.track = track;
-
-                        this.tracks.push(this.track);
-
-                        this.setState({
-                            trackLoaded: true
-                        })
-                    }
-                })
-            } else {
-                console.log("Error")
-            }
-        });
-        this.setState({
-            trackGenerating: false
-        });
+        this.requestTrack();
 
         this.handleGenerateTrackButton = this.handleGenerateTrackButton.bind(this);
-        this.handleDeleteTrack = this.handleDeleteTrack.bind(this);
     }
 
     handleGenerateTrackButton() {
@@ -109,56 +64,54 @@ class Track extends React.Component {
         }
     }
 
-    handleDeleteTrack(trackId) {
-        ApiClient.deleteTrackById(trackId).then(res => {
+    requestTrack() {
+        ApiClient.getTracks().then(res => {
             if (res.ok) {
-                window.location.reload()
+                res.json().then(json => {
+                    for (let i = 0; i < json.length; i++) {
+                        this.track = new TrackDTO();
+                        this.track.trackId = json[i].trackId;
+                        this.track.destination = json[i].destination;
+
+                        if (json[i].trackSteps != null) {
+                            for (let index = 0; index < json[i].trackSteps.length; index++) {
+                                let trackStep: TrackStepDTO = new TrackStepDTO();
+                                trackStep.completed = json[i].trackSteps[index].completed;
+                                trackStep.stepOrderNumber = json[i].trackSteps[index].stepOrderNumber;
+                                trackStep.trackStepId = json[i].trackSteps[index].trackStepId;
+
+                                trackStep.material.id = json[i].trackSteps[index].material.id;
+                                trackStep.material.learningMaterialType = json[i].trackSteps[index].material.learningMaterialType
+                                trackStep.material.learningMaterialTypeDisplay = this.getMaterialType(json[i].trackSteps[index].material.learningMaterialType);
+                                trackStep.material.description = json[i].trackSteps[index].material.description;
+                                trackStep.material.title = json[i].trackSteps[index].material.title;
+
+                                this.track.addTrackStep(trackStep);
+                            }
+
+                            this.track.trackSteps.sort((a, b) => {
+                                return a.stepOrderNumber > b.stepOrderNumber
+                            })
+                        }
+
+                        this.tracks.push(this.track);
+                        this.setState({
+                            trackLoaded: true
+                        })
+                    }
+                })
             } else {
-                console.log("Error: could not delete track by track_id!")
+                console.log("Error")
             }
+        });
+        this.setState({
+            trackGenerating: false
         });
     }
 
     render() {
         if (AuthClient.ACCESS_TOKEN == null) {
             return (<Navigate to='/login'/>)
-        }
-
-
-        console.log(this.tracks)
-        // let navigate = useNavigate();
-
-        let aRender = []
-        for (let i = 0; i < this.tracks.length; i++) {
-            let trackRender = []
-            for (let index = 0; index < this.tracks[i].trackSteps.length; index++) {
-                trackRender.push((
-                    <li className="step-wizard-item current-item" onClick={() => {
-                        // navigate('/' + this.tracks[i].trackSteps[index].material.learningMaterialType + '/' + this.tracks[i].trackSteps[index].material.id);
-                    }}>
-                        <span className="progress-count">{index + 1}</span>
-                        {this.tracks[i].trackSteps[index].completed ?
-                            <span
-                                className="progress-label_completed">{this.tracks[i].trackSteps[index].material.title}</span> :
-                            <span className="progress-label">{this.tracks[i].trackSteps[index].material.title}</span>}
-                    </li>
-                ))
-            }
-
-            aRender.push(
-                <div className="myDiv">
-                    <h1 className="stepaTitle">
-                        {this.tracks[i].destination}
-                        <span className="fa fa-trash"
-                              onClick={() => this.handleDeleteTrack(this.tracks[i].trackId)}></span>
-                    </h1>
-                    <section className="step-wizard">
-                        <ul className="step-wizard-list">
-                            {trackRender}
-                        </ul>
-                    </section>
-                </div>
-            );
         }
 
         return (
@@ -176,7 +129,7 @@ class Track extends React.Component {
                     }
                     {this.state.trackLoaded && !this.state.trackGenerating ? (
                             <div className="stepa">
-                                {aRender}
+                                <ComponentTrackView track={this.track} tracks={this.tracks}/>
                             </div>) :
                         this.state.trackGenerating ? (<Loader/>) : null
                     }
@@ -188,7 +141,51 @@ class Track extends React.Component {
 
 function ComponentTrackView(props) {
 
+    function handleDeleteTrack(trackId) {
+        ApiClient.deleteTrackById(trackId).then(res => {
+            if (res.ok) {
+                window.location.reload()
+            } else {
+                console.log("Error: could not delete track by track_id!")
+            }
+        });
+    }
 
+    let navigate = useNavigate();
+
+    let aRender = []
+    for (let i = 0; i < props.tracks.length; i++) {
+        let trackRender = []
+        for (let index = 0; index < props.tracks[i].trackSteps.length; index++) {
+            trackRender.push((
+                <li className="step-wizard-item current-item" onClick={() => {
+                    navigate('/' + props.tracks[i].trackSteps[index].material.learningMaterialType + '/' + props.tracks[i].trackSteps[index].material.id);
+                }}>
+                    <span className="progress-count">{index + 1}</span>
+                    {props.tracks[i].trackSteps[index].completed ?
+                        <span
+                            className="progress-label_completed">{props.tracks[i].trackSteps[index].material.title}</span> :
+                        <span className="progress-label">{props.tracks[i].trackSteps[index].material.title}</span>}
+                </li>
+            ))
+        }
+
+        aRender.push(
+            <div className="myDiv">
+                <h1 className="stepaTitle">
+                    {props.tracks[i].destination}
+                    <span className="fa fa-trash" onClick={() => handleDeleteTrack(props.tracks[i].trackId)}></span>
+                </h1>
+                <section className="step-wizard">
+                    <ul className="step-wizard-list">
+                        {trackRender}
+                    </ul>
+                </section>
+            </div>
+        );
+    }
+
+    return aRender;
 }
 
 function Loader() {
