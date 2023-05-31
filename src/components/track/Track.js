@@ -129,7 +129,7 @@ class Track extends React.Component {
                     {this.state.trackLoaded && !this.state.trackGenerating ? (
                             <div className="stepa">
                                 <ComponentTrackView track={this.track} tracks={this.tracks}/>
-                            </div>) :
+                            </div>) : !this.state.trackLoaded ? (<Loader/>) :
                         this.state.trackGenerating ? (<Loader/>) : null
                     }
                 </div>
@@ -141,6 +141,7 @@ class Track extends React.Component {
 function ComponentTrackView(props) {
 
     function handleDeleteTrack(trackId) {
+        console.log(trackId)
         ApiClient.deleteTrackById(trackId).then(res => {
             if (res.ok) {
                 window.location.reload()

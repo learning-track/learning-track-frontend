@@ -17,7 +17,8 @@ class Vacancies extends React.Component {
 
         this.state = {
             vacanciesLoaded: false,
-            vacancyChosen: false
+            vacancyChosen: false,
+            desiredPosition: ''
         };
 
         ApiClient.getCurrentUser().then(res => {
@@ -25,7 +26,7 @@ class Vacancies extends React.Component {
                 let desiredPosition = ''
                 res.json().then(json => {
                     desiredPosition = json.desiredPosition !== undefined && json.desiredPosition !== null ? json.desiredPosition : '';
-
+                    this.desiredPosition = desiredPosition
                     HeadHunterClient.getVacancies(desiredPosition).then(res => {
                         if (res.ok) {
                             res.json().then(json => {
@@ -124,8 +125,8 @@ class Vacancies extends React.Component {
         return (
             <div>
                 <ApplicationHeader/>
-                <div className="Articles">
-                    <h3 type="articles_page_title">Вакансии</h3>
+                <div>
+                    <h3 type="courses_page_title">{this.desiredPosition === '' ? "Вакансии" : "Вакансии для " + this.desiredPosition}</h3>
                     {this.state.vacanciesLoaded ? rowsRender : <Loader/>}
                 </div>
             </div>

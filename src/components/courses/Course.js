@@ -1,5 +1,6 @@
 import * as React from "react";
 import {animated as a} from "react-spring"
+import HashLoader from "react-spinners/HashLoader";
 
 import './Course.css';
 
@@ -80,7 +81,13 @@ class Course extends React.Component {
 
     render() {
         if (!this.state.courseLoaded) {
-            return <div className="course"/>
+            return (
+                <div>
+                    <ApplicationHeader/>
+                    <div className="course">
+                        <Loader/>
+                    </div>
+                </div>)
         }
 
         return (
@@ -112,6 +119,14 @@ class Course extends React.Component {
                 </div>
             </div>)
     }
+}
+
+function Loader() {
+    return (
+        <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "40vh"}}>
+            <HashLoader size={180} color={"#00aad5"}/>
+        </div>
+    )
 }
 
 export default Course;
